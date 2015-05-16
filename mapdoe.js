@@ -5,7 +5,8 @@ Maps = new Mongo.Collection('maps');
 
 Router.configure({
   layoutTemplate: 'layout',
-  waitOn: function () { }
+  loadingTemplate: 'loading',
+  waitOn: function () { return Meteor.subscribe('maps'); }
 });
 
 Router.route('/', { name: 'mainPage'});
@@ -44,8 +45,26 @@ if (Meteor.isClient) {
     ownerCheck: function () {
       var whoMadeThis = Maps.findOne(Session.get('currentMap'));
 
-      return whoMadeThis.createdBy === Meteor.userId();
+      if (whoMadeThis.createdBy === Meteor.userId()) {
+        return true;
+      } else {
+        return false;
+      }
     }
+  });
+
+  Template.map.onRendered( function () {
+
+    map = L.map('map');
+
+    map.setView([20.505, -20.09], 2);
+
+    L.tileLayer('http://{s}.tile.stamen.com/watercolor/{z}/{x}/{y}.png', {
+        // attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>',
+        maxZoom: 18,
+        minZoom: 1
+    }).addTo(map);
+
   });
 
 
