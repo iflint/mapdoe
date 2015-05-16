@@ -1,0 +1,36 @@
+<head>
+  <title>mapdoe</title>
+</head>
+
+<template name="layout">
+
+
+	{{> yield}}
+
+
+</template>
+
+<template name="mainPage">
+
+	<h1>Maps</h1>
+
+
+	{{> loginButtons}}
+
+	{{#if currentUser}}
+
+		<a href="{{pathFor 'addMap'}}">Add a Map</a><br>
+
+	{{else}}
+
+		<h6>sign in to add a map</h6>
+
+	{{/if}}
+
+	{{#each maps}}
+		{{title}}<a href="{{pathFor 'mapPage'}}">yo</a><br>
+	{{/each}}
+
+
+
+</template>
