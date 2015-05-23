@@ -13,6 +13,25 @@
 	{{#if ownerCheck}}
 		<h1>yo</h1>
 
+
+
+		<form class="addPointForm">
+			<input name="pointLatInput" type="text" placeholder="Latitude">
+			<input name="pointLonInput" type="text" placeholder="Longitude">
+			<input name="pointDescInput" type="text" placeholder="Add a Description">
+
+		
+			<input type="submit">
+
+
+		</form>
+
+		{{#c_upload callback="getPic"}}
+		
+		    <input type="file">
+		{{/c_upload}}
+
+
 	{{/if}}
 
 </template>
