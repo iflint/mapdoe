@@ -82,6 +82,23 @@ if (Meteor.isClient) {
         minZoom: 1
     }).addTo(map);
 
+    var testIcon = L.icon({
+      iconUrl: '/icon55.png'
+    });
+
+    // tracker adds points again when Map cursor changes
+    Tracker.autorun( function() {
+
+      var thisMap = Maps.findOne(Session.get('currentMap'));
+
+      for (var i = 0; i < thisMap.points.length; i++) {
+
+        var renderedDiv = document.createElement('div');
+        Blaze.renderWithData(Template.popupContent, thisMap.points[i], renderedDiv);
+
+        L.marker([thisMap.points[i].pointLat, thisMap.points[i].pointLon], {icon: testIcon}).addTo(map).bindPopup(renderedDiv);
+      }
+    });
   });
 
 // ________________map_page______________________
@@ -141,6 +158,7 @@ Meteor.methods({
     Maps.update(insertPointData.whichMap, {$push: {points: insertPointData}});
 
     console.log(theCurrentMap);
+
   }
 
 
@@ -150,7 +168,7 @@ Meteor.methods({
 
 if (Meteor.isServer) {
   Meteor.startup(function () {
-    // code to run on server at startup
+
   });
 
   // part of Cloudinary configuration
@@ -162,6 +180,7 @@ if (Meteor.isServer) {
 
 
   Meteor.publish('maps', function () {
+
     return Maps.find();
   });
 }

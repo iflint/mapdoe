@@ -28,7 +28,10 @@
 
 		{{#c_upload callback="getPic"}}
 		
-		    <input type="file">
+		    <form>
+		    	<input type="file">
+		    	<input type="submit">
+		    </form>
 		{{/c_upload}}
 
 
@@ -39,5 +42,12 @@
 <template name="map">
 
 	<div id="map"></div>
+
+</template>
+
+<template name="popupContent">
+
+	<img style="width: 40px; height: 40px;" src="{{c.url mediaLink format=format}}">
+	<p>{{this.pointDesc}}</p>
 
 </template>
