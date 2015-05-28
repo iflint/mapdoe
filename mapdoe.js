@@ -23,11 +23,6 @@ Router.route('/maps/:_id', {
 
 if (Meteor.isClient) {
 
-  // part of Cloudinary configuration
-  $.cloudinary.config({
-    cloud_name: 'pacha'
-  });
-
   Meteor.subscribe('maps');
 
 // ________________main_page_____________________
@@ -62,11 +57,12 @@ if (Meteor.isClient) {
     'submit .addPointForm': function (event) {
       var lat = event.target.pointLatInput.value;
       var lon = event.target.pointLonInput.value;
+      var link = event.target.pointLinkInput.value;
       var desc = event.target.pointDescInput.value;
       var thisUser = Meteor.userId();
       var thisMap = Session.get('currentMap');
 
-      Meteor.call('insertPoint', lat, lon, desc, thisUser, thisMap);
+      Meteor.call('insertPoint', lat, lon, link, desc, thisUser, thisMap);
     }
   });
 
@@ -76,7 +72,7 @@ if (Meteor.isClient) {
 
     map.setView([20.505, -20.09], 2);
 
-    L.tileLayer('http://{s}.tile.stamen.com/watercolor/{z}/{x}/{y}.png', {
+    L.tileLayer('http://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
         // attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>',
         maxZoom: 18,
         minZoom: 1
@@ -94,6 +90,8 @@ if (Meteor.isClient) {
       for (var i = 0; i < thisMap.points.length; i++) {
 
         var renderedDiv = document.createElement('div');
+
+        // inserts popupContent template inside renderedDiv with a data context of thisMap.points
         Blaze.renderWithData(Template.popupContent, thisMap.points[i], renderedDiv);
 
         L.marker([thisMap.points[i].pointLat, thisMap.points[i].pointLon], {icon: testIcon}).addTo(map).bindPopup(renderedDiv);
@@ -133,35 +131,40 @@ Meteor.methods({
     });
   },
 
-  insertPoint: function (latParam, lonParam, descParam, userParam, mapParam) {
+  insertPoint: function (latParam, lonParam, linkParam, descParam, userParam, mapParam) {
+    
+    var embedlyKey = 'f132e563396740e19d52d6d75130f576';
+    var linkName = encodeURIComponent(linkParam);
+    var embedlyCall = 'http://api.embed.ly/1/oembed?key=' + embedlyKey + '&url=' + linkName;
+
+    var embedlyReturn = HTTP.get(embedlyCall);
+    var embedlyParsed = JSON.parse(embedlyReturn.content);
+
+    var ct2;
+    if (embedlyParsed.type == 'video') {
+      // using cheerio to find the src attribute of the iframe
+      var iframer = embedlyParsed.html;
+      var $ = cheerio.load(iframer);
+      ct2 = $('iframe').attr('src');
+    } 
+
+    console.log(ct2);
+
     var pointObject = {
       pointLat: latParam,
       pointLon: lonParam,
+      pointLink: embedlyParsed,
+      videoSrc: ct2,
       pointDesc: descParam,
       createdAt: new Date(),
       createdBy: userParam,
       whichMap: mapParam
     }
 
+    Maps.update(pointObject.whichMap, {$push: {points: pointObject}});
 
-    ServerSession.set('dfresh', pointObject);
     console.log(pointObject);
-  },
-
-  getPic: function (response) {
-    var insertPointData = ServerSession.get('dfresh');
-
-    insertPointData.mediaLink = response.upload_data.public_id;
-
-    var theCurrentMap = Maps.findOne(insertPointData.whichMap);
-
-    Maps.update(insertPointData.whichMap, {$push: {points: insertPointData}});
-
-    console.log(theCurrentMap);
-
   }
-
-
 });
 
 
@@ -170,14 +173,6 @@ if (Meteor.isServer) {
   Meteor.startup(function () {
 
   });
-
-  // part of Cloudinary configuration
-  Cloudinary.config({
-    cloud_name: 'pacha',
-    api_key: '826281595969759',
-    api_secret: 'rvE7EWv5ZT8vAUuiCV24jZ76lj8'
-  });
-
 
   Meteor.publish('maps', function () {
 

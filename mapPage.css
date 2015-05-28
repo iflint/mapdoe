@@ -1,0 +1,26 @@
+
+#map {
+	height: 500px;
+	width: 100%;
+	z-index: -1;
+	position: fixed;
+	opacity: 1;
+	top: 0;
+}
+
+#mapFilter {
+	height: 500px;
+	width: 100%;
+	z-index: -2;
+	position: fixed;
+	background: white;
+	top: 0;
+}
+
+#contentArea {
+	position: relative;
+	width: 100%;
+	margin-top: 500px;
+	background: white;
+	z-index: 10;
+}

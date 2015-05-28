@@ -3,39 +3,28 @@
 <template name="mapPage">
 
 	{{> map}}
-
-	<h1>hey</h1>
-
-	{{title}}
-
-	{{createdBy}}
-
-	{{#if ownerCheck}}
-		<h1>yo</h1>
+	<div id="mapFilter"></div>
 
 
+	<div id="contentArea">
 
-		<form class="addPointForm">
-			<input name="pointLatInput" type="text" placeholder="Latitude">
-			<input name="pointLonInput" type="text" placeholder="Longitude">
-			<input name="pointDescInput" type="text" placeholder="Add a Description">
+		{{title}}
 
-		
-			<input type="submit">
+		{{createdBy}}
 
+		{{#if ownerCheck}}
 
-		</form>
+			<form class="addPointForm">
+				<input name="pointLatInput" type="text" placeholder="Latitude">
+				<input name="pointLonInput" type="text" placeholder="Longitude">
+				<input name="pointLinkInput" type="text" placeholder="Add a Link">
+				<input name="pointDescInput" type="text" placeholder="Add a Description">
+				<input type="submit">
+			</form>
 
-		{{#c_upload callback="getPic"}}
-		
-		    <form>
-		    	<input type="file">
-		    	<input type="submit">
-		    </form>
-		{{/c_upload}}
+		{{/if}}
 
-
-	{{/if}}
+	</div>
 
 </template>
 
@@ -47,7 +36,14 @@
 
 <template name="popupContent">
 
-	<img style="width: 40px; height: 40px;" src="{{c.url mediaLink format=format}}">
-	<p>{{this.pointDesc}}</p>
+	<p>{{pointLink.title}}</p>
+
+	{{#if pointLink.html}}
+		<iframe class="embedly-embed" src="{{videoSrc}}" width="340" height="280" scrolling="no" frameborder="0" allowfullscreen></iframe>
+	{{/if}}
+
+	<p>{{pointDesc}}</p>
+
+	
 
 </template>
